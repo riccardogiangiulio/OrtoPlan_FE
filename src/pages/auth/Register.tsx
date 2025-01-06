@@ -51,7 +51,6 @@ const Register = () => {
     const {
         register,
         handleSubmit,
-        control,
         formState: { errors, isSubmitting },
     } = useForm<RegisterFormValues>({
         defaultValues: initialValues,
@@ -166,7 +165,7 @@ const Register = () => {
                 </Button>
             </form>
             {success && (
-                <Alert variant="success">
+                <Alert variant="default">
                     <CheckCircle className="h-4 w-4" />
                     <AlertTitle>Registration Successful!</AlertTitle>
                     <AlertDescription>

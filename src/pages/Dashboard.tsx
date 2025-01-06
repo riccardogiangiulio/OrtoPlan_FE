@@ -1,8 +1,9 @@
 import { useAuth } from "@/contexts/AuthContext";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Sprout, Cloud, Calendar, Bell, Settings, Plus } from "lucide-react";
+import { Sprout, Calendar, Bell, Settings, Plus } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import Weather from "@/components/Weather";
 
 const Dashboard = () => {
     const { user } = useAuth();
@@ -16,12 +17,6 @@ const Dashboard = () => {
             onClick: () => console.log("Aggiungi pianta"),
         },
         {
-            title: "Meteo",
-            icon: <Cloud className="h-5 w-5" />,
-            color: "text-blue-600",
-            onClick: () => console.log("Visualizza meteo"),
-        },
-        {
             title: "Calendario",
             icon: <Calendar className="h-5 w-5" />,
             color: "text-orange-600",
@@ -32,7 +27,7 @@ const Dashboard = () => {
             icon: <Bell className="h-5 w-5" />,
             color: "text-purple-600",
             onClick: () => console.log("Visualizza notifiche"),
-        },
+        }
     ];
 
     const stats = [
@@ -77,8 +72,13 @@ const Dashboard = () => {
                 </Button>
             </div>
 
+            {/* Weather Component */}
+            <div className="mb-6">
+                <Weather />
+            </div>
+
             {/* Quick Actions */}
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+            <div className="grid grid-cols-3 gap-4 mb-6">
                 {quickActions.map((action, index) => (
                     <Button
                         key={index}
