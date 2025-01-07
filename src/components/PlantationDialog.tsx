@@ -11,7 +11,7 @@ interface PlantationDialogProps {
     open: boolean;
     onOpenChange: (open: boolean) => void;
     plantation?: Plantation | null;
-    onSuccess: () => void;
+    onSuccess: (plantation?: Plantation) => void;
 }
 
 export function PlantationDialog({ open, onOpenChange, plantation, onSuccess }: PlantationDialogProps) {
@@ -69,11 +69,13 @@ export function PlantationDialog({ open, onOpenChange, plantation, onSuccess }: 
             };
 
             if (plantation) {
-                await api.put(`/plantations/${plantation.plantationId}`, payload);
+                const response = await api.put(`/plantations/${plantation.plantationId}`, payload);
+                onSuccess(response.data);
             } else {
-                await api.post("/plantations", payload);
+                const response = await api.post("/plantations", payload);
+                onSuccess(response.data);
             }
-            onSuccess();
+            onOpenChange(false);
         } catch (error) {
             console.error("Errore nel salvataggio della piantagione:", error);
         }

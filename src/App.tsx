@@ -7,6 +7,9 @@ import Dashboard from "./pages/Dashboard";
 import UserSettings from "@/pages/UserSettings";
 import Plants from "./pages/Plants";
 import Plantations from "./pages/Plantations";
+import Activities from "./pages/Activities";
+import ActivityTypes from "./pages/ActivityTypes";
+import PlantationDetails from "./pages/PlantationDetails";
 
 import { AuthProvider } from "@/contexts/AuthContext";
 import { StoreProvider } from "@/contexts/StoreContext";
@@ -25,6 +28,9 @@ function App() {
                         <Route path="settings" element={<UserSettings />} />
                         <Route path="/plants" element={<Plants />} />
                         <Route path="/plantations" element={<Plantations />} />
+                        <Route path="/plantations/:plantationId" element={<PlantationDetails />} />
+                        <Route path="activities" element={<Activities />} />
+                        <Route path="activity-types" element={<ActivityTypes />} />
                     </Route>
 
                 </Routes>

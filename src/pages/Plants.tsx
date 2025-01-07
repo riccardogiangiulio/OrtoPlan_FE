@@ -79,7 +79,7 @@ export default function Plants() {
                                 <div className="flex items-center">
                                     <Calendar className="h-4 w-4 mr-2" />
                                     <span className="text-sm">
-                                        Periodo: {formatDate(plant.cultivationStart)} - {formatDate(plant.cultivationEnd)}
+                                        Periodo di coltivazione: {formatDate(plant.cultivationStart)} - {formatDate(plant.cultivationEnd)}
                                     </span>
                                 </div>
                                 <div className="flex items-center">

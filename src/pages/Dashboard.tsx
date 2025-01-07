@@ -1,13 +1,14 @@
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { useNavigate } from "react-router-dom";
-import { Sprout, MapPin, Plus } from "lucide-react";
+import { useNavigate, Link } from "react-router-dom";
+import { Sprout, MapPin, Plus, Calendar, List } from "lucide-react";
 import Weather from "@/components/Weather";
 import { useState, useEffect } from "react";
 import { api } from "@/contexts/AuthContext";
 import type Plant from "@/interfaces/Plant";
 import type Plantation from "@/interfaces/Plantation";
 import { useAuth } from "@/contexts/AuthContext";
+import PlantationDetails from "./PlantationDetails";
 
 export default function Dashboard() {
     const { user } = useAuth();
@@ -52,8 +53,11 @@ export default function Dashboard() {
             </div>
 
             {/* Azioni Rapide */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-                <Card className="hover:shadow-lg transition-all cursor-pointer" onClick={() => navigate("/plantations")}>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                <Card 
+                    className="hover:shadow-lg transition-all cursor-pointer" 
+                    onClick={() => navigate('/plantations')}
+                >
                     <CardHeader>
                         <CardTitle className="flex items-center gap-2">
                             <MapPin className="h-5 w-5 text-blue-600" />
@@ -67,7 +71,10 @@ export default function Dashboard() {
                         {recentPlantations.length > 0 ? (
                             <div className="space-y-2">
                                 {recentPlantations.map(plantation => (
-                                    <div key={plantation.plantationId} className="flex justify-between items-center p-2 bg-gray-50 rounded">
+                                    <div 
+                                        key={plantation.plantationId}
+                                        className="flex justify-between items-center p-2 bg-gray-50 rounded"
+                                    >
                                         <span>{plantation.name}</span>
                                         <span className="text-sm text-gray-500">
                                             {formatDate(plantation.startDate)}
@@ -108,10 +115,40 @@ export default function Dashboard() {
                         )}
                     </CardContent>
                 </Card>
+
+                <Card className="hover:shadow-lg transition-all cursor-pointer" onClick={() => navigate("/activities")}>
+                    <CardHeader>
+                        <CardTitle className="flex items-center gap-2">
+                            <Calendar className="h-5 w-5 text-purple-600" />
+                            Attività
+                        </CardTitle>
+                        <CardDescription>
+                            Gestisci le attività del tuo orto
+                        </CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                        <p className="text-sm text-gray-500">Pianifica e monitora le tue attività</p>
+                    </CardContent>
+                </Card>
+
+                <Card className="hover:shadow-lg transition-all cursor-pointer" onClick={() => navigate("/activity-types")}>
+                    <CardHeader>
+                        <CardTitle className="flex items-center gap-2">
+                            <List className="h-5 w-5 text-orange-600" />
+                            Tipi di Attività
+                        </CardTitle>
+                        <CardDescription>
+                            Gestisci i tipi di attività disponibili
+                        </CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                        <p className="text-sm text-gray-500">Personalizza i tipi di attività del tuo orto</p>
+                    </CardContent>
+                </Card>
             </div>
 
             {/* Azioni Principali */}
-            <div className="flex gap-4 justify-center">
+            <div className="flex flex-wrap gap-4">
                 <Button 
                     onClick={() => navigate("/plantations")}
                     className="flex items-center gap-2"
@@ -126,6 +163,14 @@ export default function Dashboard() {
                 >
                     <Plus className="h-4 w-4" />
                     Aggiungi Pianta
+                </Button>
+                <Button 
+                    onClick={() => navigate("/activities")}
+                    variant="outline"
+                    className="flex items-center gap-2"
+                >
+                    <Plus className="h-4 w-4" />
+                    Nuova Attività
                 </Button>
             </div>
         </div>

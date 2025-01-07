@@ -3,10 +3,11 @@ import { api } from "@/contexts/AuthContext";
 import { useAuth } from "@/contexts/AuthContext";
 import type Plantation  from "@/interfaces/Plantation";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Sprout, Edit, Trash2, MapPin, Plus } from "lucide-react";
 import { PlantationDialog } from "@/components/PlantationDialog";
 import Plant from "@/interfaces/Plant";
+import { Link } from "react-router-dom";
 
 interface PlantationWithDetails extends Plantation {
     plantDetails?: Plant;
@@ -51,17 +52,6 @@ export default function Plantations() {
         }
     }, [user]);
 
-    const handleDelete = async (plantationId: number) => {
-        if (confirm("Sei sicuro di voler eliminare questa piantagione?")) {
-            try {
-                await api.delete(`/plantations/${plantationId}`);
-                setPlantations(plantations.filter(p => p.plantationId !== plantationId));
-            } catch (error) {
-                console.error("Errore nell'eliminazione della piantagione:", error);
-            }
-        }
-    };
-
     const formatDate = (dateString: string) => {
         return new Date(dateString).toLocaleDateString('it-IT');
     };
@@ -72,7 +62,7 @@ export default function Plantations() {
     };
 
     return (
-        <div className="container mx-auto p-6">
+        <div className="container mx-auto p-4 space-y-4">
             <div className="flex justify-between items-center mb-6">
                 <h1 className="text-2xl font-bold">Le Mie Piantagioni</h1>
                 <Button onClick={handleAdd}>
@@ -81,35 +71,17 @@ export default function Plantations() {
                 </Button>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 {plantations.map((plantation) => (
                     <Card key={plantation.plantationId}>
-                        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                            <div>
-                                <CardTitle className="text-xl font-bold">{plantation.name}</CardTitle>
-                                <p className="text-sm text-muted-foreground">
-                                    {plantation.plantDetails?.name || "Pianta non specificata"}
-                                </p>
-                            </div>
-                            <div className="flex space-x-2">
-                                <Button 
-                                    variant="ghost" 
-                                    size="icon"
-                                    onClick={() => {
-                                        setSelectedPlantation(plantation);
-                                        setIsDialogOpen(true);
-                                    }}
-                                >
-                                    <Edit className="h-4 w-4" />
-                                </Button>
-                                <Button 
-                                    variant="ghost" 
-                                    size="icon"
-                                    onClick={() => handleDelete(plantation.plantationId)}
-                                >
-                                    <Trash2 className="h-4 w-4" />
-                                </Button>
-                            </div>
+                        <CardHeader>
+                            <Link 
+                                to={`/plantations/${plantation.plantationId}`}
+                                className="hover:underline"
+                            >
+                                <CardTitle>{plantation.name}</CardTitle>
+                            </Link>
+                            <CardDescription>{plantation.city}</CardDescription>
                         </CardHeader>
                         <CardContent>
                             <div className="space-y-4">

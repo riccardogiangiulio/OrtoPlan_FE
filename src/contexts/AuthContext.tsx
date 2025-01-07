@@ -8,6 +8,9 @@ const STORAGE_URL = import.meta.env.VITE_API_BACKEND_URL;
 
 export const api = axios.create({
     baseURL: STORAGE_URL,
+    headers: {
+        "Content-Type": "application/json",
+    }
 });
 
 interface IAuthContextProps {
