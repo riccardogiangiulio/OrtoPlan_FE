@@ -6,6 +6,7 @@ import LandingPage from "./pages/LandingPage";
 import Dashboard from "./pages/Dashboard";
 import UserSettings from "@/pages/UserSettings";
 import Plants from "./pages/Plants";
+import Plantations from "./pages/Plantations";
 
 import { AuthProvider } from "@/contexts/AuthContext";
 import { StoreProvider } from "@/contexts/StoreContext";
@@ -23,6 +24,7 @@ function App() {
                         <Route path="register" element={<Register />}></Route>
                         <Route path="settings" element={<UserSettings />} />
                         <Route path="/plants" element={<Plants />} />
+                        <Route path="/plantations" element={<Plantations />} />
                     </Route>
 
                 </Routes>
