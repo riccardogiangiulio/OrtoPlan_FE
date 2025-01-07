@@ -49,10 +49,10 @@ export const Navbar = () => {
                             Le Mie Piantagioni
                         </Link>
                         <Link 
-                            to="/calendar" 
+                            to="/activities" 
                             className="text-gray-600 dark:text-gray-300 hover:text-green-600 dark:hover:text-green-500"
                         >
-                            Calendario
+                            Attività
                         </Link>
                     </div>
 
@@ -62,12 +62,17 @@ export const Navbar = () => {
                             <DropdownMenu>
                                 <DropdownMenuTrigger asChild>
                                     <Button 
-                                        variant="ghost" 
-                                        className="relative h-8 w-8 rounded-full"
+                                        variant="outline" 
+                                        className="flex items-center gap-2 px-3 py-2 h-auto"
                                     >
-                                        <span className="font-medium">
-                                            {user.firstName?.charAt(0)}
-                                            {user.lastName?.charAt(0)}
+                                        <div className="h-8 w-8 rounded-full bg-green-100 dark:bg-green-900 flex items-center justify-center">
+                                            <span className="font-medium text-green-700 dark:text-green-300">
+                                                {user.firstName?.charAt(0)}
+                                                {user.lastName?.charAt(0)}
+                                            </span>
+                                        </div>
+                                        <span className="text-sm font-medium">
+                                            {user.firstName} {user.lastName}
                                         </span>
                                     </Button>
                                 </DropdownMenuTrigger>
@@ -123,11 +128,11 @@ export const Navbar = () => {
                             Le Mie Piantagioni
                         </Link>
                         <Link 
-                            to="/calendar" 
+                            to="/activities" 
                             className="block px-4 py-2 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-md"
                             onClick={() => setIsMobileMenuOpen(false)}
                         >
-                            Calendario
+                            Attività
                         </Link>
                         <div className="px-4 py-2 border-t border-gray-200 dark:border-gray-700">
                             <Button 

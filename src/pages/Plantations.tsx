@@ -8,6 +8,7 @@ import { Sprout, Edit, Trash2, MapPin, Plus } from "lucide-react";
 import { PlantationDialog } from "@/components/PlantationDialog";
 import Plant from "@/interfaces/Plant";
 import { Link } from "react-router-dom";
+import { CustomAlert } from "@/components/ui/CustomAlert";
 
 interface PlantationWithDetails extends Plantation {
     plantDetails?: Plant;
@@ -18,6 +19,12 @@ export default function Plantations() {
     const [plantations, setPlantations] = useState<PlantationWithDetails[]>([]);
     const [isDialogOpen, setIsDialogOpen] = useState(false);
     const [selectedPlantation, setSelectedPlantation] = useState<Plantation | null>(null);
+    const [alert, setAlert] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
+
+    const showAlert = (type: 'success' | 'error', message: string) => {
+        setAlert({ type, message });
+        setTimeout(() => setAlert(null), 3000);
+    };
 
     const fetchPlantationDetails = async (plantations: Plantation[]) => {
         const updatedPlantations = await Promise.all(
@@ -29,7 +36,7 @@ export default function Plantations() {
                         plantDetails: response.data
                     };
                 } catch (error) {
-                    console.error(`Errore nel recupero dei dettagli della pianta ${plantation.plant.plantId}:`, error);
+                    showAlert('error', `Errore nel recupero dei dettagli della pianta ${plantation.plant.plantId}`);
                     return plantation;
                 }
             })
@@ -42,7 +49,7 @@ export default function Plantations() {
             const response = await api.get(`/plantations/user/${user?.userId}`);
             await fetchPlantationDetails(response.data);
         } catch (error) {
-            console.error("Errore nel recupero delle piantagioni:", error);
+            showAlert('error', "Errore nel recupero delle piantagioni");
         }
     };
 
@@ -63,6 +70,8 @@ export default function Plantations() {
 
     return (
         <div className="container mx-auto p-4 space-y-4">
+            {alert && <CustomAlert type={alert.type} message={alert.message} />}
+            
             <div className="flex justify-between items-center mb-6">
                 <h1 className="text-2xl font-bold">Le Mie Piantagioni</h1>
                 <Button onClick={handleAdd}>
@@ -108,9 +117,13 @@ export default function Plantations() {
                 open={isDialogOpen}
                 onOpenChange={setIsDialogOpen}
                 plantation={selectedPlantation}
-                onSuccess={() => {
+                onSuccess={(plantation) => {
                     setIsDialogOpen(false);
                     fetchPlantations();
+                    showAlert('success', plantation ? 
+                        "Piantagione creata con successo" : 
+                        "Piantagione modificata con successo"
+                    );
                 }}
             />
         </div>

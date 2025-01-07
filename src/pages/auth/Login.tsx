@@ -1,14 +1,14 @@
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useAuth } from "@/contexts/AuthContext";
 import { zodResolver } from "@hookform/resolvers/zod";
 import axios from "axios";
-import { Eye, EyeOff, XCircle } from "lucide-react";
+import { Eye, EyeOff } from "lucide-react";
 import { useState } from "react";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { Link } from "react-router-dom";
 import { z } from "zod";
+import { CustomAlert } from "@/components/ui/CustomAlert";
 
 const STORAGE_URL = import.meta.env.VITE_API_BACKEND_URL;
 
@@ -121,17 +121,13 @@ const Login = () => {
                         </form>
 
                         {error && (
-                            <Alert variant="destructive" className="mt-4">
-                                <XCircle className="h-4 w-4" />
-                                <AlertTitle>
-                                    {error === "credentials" ? "Credenziali non valide" : "Errore durante l'accesso"}
-                                </AlertTitle>
-                                <AlertDescription>
-                                    {error === "credentials"
-                                        ? "Le credenziali inserite non sono corrette."
-                                        : "Si è verificato un errore durante l'accesso"}
-                                </AlertDescription>
-                            </Alert>
+                            <CustomAlert 
+                                type="error"
+                                message={error === "credentials" 
+                                    ? "Le credenziali inserite non sono corrette."
+                                    : "Si è verificato un errore durante l'accesso"
+                                }
+                            />
                         )}
 
                         <div className="mt-6">

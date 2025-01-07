@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Search } from "lucide-react";
 import { useState } from "react";
 import axios from "axios";
+import { CustomAlert } from "@/components/ui/CustomAlert";
 
 interface LocationSearchProps {
     onLocationSelect: (lat: number, lon: number) => void;
@@ -22,13 +23,17 @@ export const LocationSearch = ({ onLocationSelect }: LocationSearchProps) => {
     const [search, setSearch] = useState("");
     const [results, setResults] = useState<GeocodingResult[]>([]);
     const [loading, setLoading] = useState(false);
-    const [error, setError] = useState<string | null>(null);
+    const [alert, setAlert] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
+
+    const showAlert = (type: 'success' | 'error', message: string) => {
+        setAlert({ type, message });
+        setTimeout(() => setAlert(null), 3000);
+    };
 
     const searchLocation = async () => {
         if (!search.trim()) return;
         
         setLoading(true);
-        setError(null);
         try {
             const response = await axios.get(
                 `https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(search)}&count=5&language=it&format=json`
@@ -38,12 +43,12 @@ export const LocationSearch = ({ onLocationSelect }: LocationSearchProps) => {
                 setResults(response.data.results);
             } else {
                 setResults([]);
-                setError("Nessun risultato trovato");
+                showAlert('error', "Nessun risultato trovato");
             }
         } catch (err) {
             console.error("Errore nella ricerca:", err);
             setResults([]);
-            setError("Errore durante la ricerca");
+            showAlert('error', "Errore durante la ricerca");
         } finally {
             setLoading(false);
         }
@@ -54,11 +59,14 @@ export const LocationSearch = ({ onLocationSelect }: LocationSearchProps) => {
             onLocationSelect(result.latitude, result.longitude);
             setResults([]);
             setSearch("");
+            showAlert('success', `Località selezionata: ${result.name}`);
         }
     };
 
     return (
         <div className="space-y-4">
+            {alert && <CustomAlert type={alert.type} message={alert.message} />}
+            
             <div className="flex gap-2">
                 <Input
                     placeholder="Cerca una città..."
@@ -80,12 +88,6 @@ export const LocationSearch = ({ onLocationSelect }: LocationSearchProps) => {
                     <Search className="h-4 w-4" />
                 </Button>
             </div>
-            
-            {error && (
-                <div className="text-red-500 text-sm">
-                    {error}
-                </div>
-            )}
             
             {results.length > 0 && (
                 <div className="bg-background border rounded-md shadow-sm max-h-60 overflow-y-auto">

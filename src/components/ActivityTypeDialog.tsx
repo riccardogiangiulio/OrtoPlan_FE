@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -8,30 +8,19 @@ import type ActivityType from "@/interfaces/ActivityType";
 interface ActivityTypeDialogProps {
     open: boolean;
     onOpenChange: (open: boolean) => void;
-    activityType?: ActivityType | null;
-    onSuccess: () => void;
+    onSuccess: (activityType?: ActivityType) => void;
 }
 
-export function ActivityTypeDialog({ open, onOpenChange, activityType, onSuccess }: ActivityTypeDialogProps) {
+export function ActivityTypeDialog({ open, onOpenChange, onSuccess }: ActivityTypeDialogProps) {
     const [name, setName] = useState("");
-
-    useEffect(() => {
-        if (activityType) {
-            setName(activityType.name);
-        } else {
-            setName("");
-        }
-    }, [activityType]);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         try {
-            if (activityType) {
-                await api.put(`/activityTypes/${activityType.activityTypeId}`, { name });
-            } else {
-                await api.post("/activityTypes", { name });
-            }
-            onSuccess();
+            const response = await api.post("/activityTypes", { name });
+            onSuccess(response.data);
+            setName(""); // Reset form
+            onOpenChange(false);
         } catch (error) {
             console.error("Errore nel salvataggio del tipo di attività:", error);
         }
@@ -41,9 +30,7 @@ export function ActivityTypeDialog({ open, onOpenChange, activityType, onSuccess
         <Dialog open={open} onOpenChange={onOpenChange}>
             <DialogContent>
                 <DialogHeader>
-                    <DialogTitle>
-                        {activityType ? "Modifica Tipo di Attività" : "Nuovo Tipo di Attività"}
-                    </DialogTitle>
+                    <DialogTitle>Nuovo Tipo di Attività</DialogTitle>
                 </DialogHeader>
                 <form onSubmit={handleSubmit} className="space-y-4">
                     <div className="space-y-2">
@@ -59,7 +46,7 @@ export function ActivityTypeDialog({ open, onOpenChange, activityType, onSuccess
                             Annulla
                         </Button>
                         <Button type="submit">
-                            {activityType ? "Salva Modifiche" : "Crea"}
+                            Crea
                         </Button>
                     </div>
                 </form>

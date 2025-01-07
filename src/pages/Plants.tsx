@@ -5,22 +5,29 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Plus, Edit, Trash2, Calendar } from "lucide-react";
 import { PlantDialog } from "@/components/PlantDialog";
+import { CustomAlert } from "@/components/ui/CustomAlert";
 
 export default function Plants() {
     const [plants, setPlants] = useState<Plant[]>([]);
     const [isDialogOpen, setIsDialogOpen] = useState(false);
     const [selectedPlant, setSelectedPlant] = useState<Plant | null>(null);
+    const [alert, setAlert] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
 
     useEffect(() => {
         fetchPlants();
     }, []);
+
+    const showAlert = (type: 'success' | 'error', message: string) => {
+        setAlert({ type, message });
+        setTimeout(() => setAlert(null), 3000);
+    };
 
     const fetchPlants = async () => {
         try {
             const response = await api.get("/plants");
             setPlants(response.data);
         } catch (error) {
-            console.error("Errore nel recupero delle piante:", error);
+            showAlert('error', "Errore nel recupero delle piante");
         }
     };
 
@@ -29,8 +36,9 @@ export default function Plants() {
             try {
                 await api.delete(`/plants/${plantId}`);
                 setPlants(plants.filter(plant => plant.plantId !== plantId));
+                showAlert('success', "Pianta eliminata con successo");
             } catch (error) {
-                console.error("Errore nell'eliminazione della pianta:", error);
+                showAlert('error', "Errore nell'eliminazione della pianta");
             }
         }
     };
@@ -51,6 +59,8 @@ export default function Plants() {
 
     return (
         <div className="container mx-auto p-6">
+            {alert && <CustomAlert type={alert.type} message={alert.message} />}
+            
             <div className="flex justify-between items-center mb-6">
                 <h1 className="text-2xl font-bold">Le Mie Piante</h1>
                 <Button onClick={handleAdd}>
@@ -95,12 +105,12 @@ export default function Plants() {
             </div>
 
             <PlantDialog 
-                open={isDialogOpen} 
+                open={isDialogOpen}
                 onOpenChange={setIsDialogOpen}
                 plant={selectedPlant}
-                onSuccess={() => {
-                    setIsDialogOpen(false);
+                onSuccess={(plant) => {
                     fetchPlants();
+                    showAlert('success', plant ? "Pianta modificata con successo" : "Pianta aggiunta con successo");
                 }}
             />
         </div>

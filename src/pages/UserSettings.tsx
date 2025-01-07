@@ -3,11 +3,8 @@ import { useStoreContext } from "@/contexts/StoreContext";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { CheckCircle, XCircle } from "lucide-react";
+import { CustomAlert } from "@/components/ui/CustomAlert";
 import { useState, useEffect } from "react";
-import { cn } from "@/lib/utils";
-import { CustomAlert } from "@/components/ui/custom-alert";
 
 const UserSettings = () => {
     const { user } = useAuth();
@@ -24,9 +21,9 @@ const UserSettings = () => {
         newPassword: "",
     });
     const [alerts, setAlerts] = useState<{
-        profile?: { type: "success" | "error"; title: string; message: string };
-        password?: { type: "success" | "error"; title: string; message: string };
-        delete?: { type: "success" | "error"; title: string; message: string };
+        profile?: { type: "success" | "error"; message: string };
+        password?: { type: "success" | "error"; message: string };
+        delete?: { type: "success" | "error"; message: string };
     }>({});
 
     useEffect(() => {
@@ -39,10 +36,10 @@ const UserSettings = () => {
         }
     }, [user]);
 
-    const showAlert = (section: 'profile' | 'password' | 'delete', type: "success" | "error", title: string, message: string) => {
+    const showAlert = (section: 'profile' | 'password' | 'delete', type: "success" | "error", message: string) => {
         setAlerts(prev => ({
             ...prev,
-            [section]: { type, title, message }
+            [section]: { type, message }
         }));
         setTimeout(() => {
             setAlerts(prev => ({
@@ -60,14 +57,12 @@ const UserSettings = () => {
                 showAlert(
                     "profile",
                     "success",
-                    "Modifiche salvate",
                     "Le modifiche al profilo sono state salvate con successo"
                 );
             } catch (error) {
                 showAlert(
                     "profile",
                     "error",
-                    "Errore",
                     "Si è verificato un errore durante il salvataggio delle modifiche"
                 );
             }
@@ -83,7 +78,6 @@ const UserSettings = () => {
                     showAlert(
                         "password",
                         "success",
-                        "Password aggiornata",
                         "La password è stata aggiornata con successo"
                     );
                     setPasswordForm({ currentPassword: "", newPassword: "" });
@@ -92,7 +86,6 @@ const UserSettings = () => {
                     showAlert(
                         "password",
                         "error",
-                        "Password errata",
                         "La password attuale non è corretta"
                     );
                 });
@@ -106,14 +99,12 @@ const UserSettings = () => {
                 showAlert(
                     "delete",
                     "success",
-                    "Account eliminato",
                     "Il tuo account è stato eliminato con successo"
                 );
             } catch (error) {
                 showAlert(
                     "delete",
                     "error",
-                    "Errore",
                     "Si è verificato un errore durante l'eliminazione dell'account"
                 );
             }
@@ -155,7 +146,6 @@ const UserSettings = () => {
                     {alerts.profile && (
                         <CustomAlert 
                             type={alerts.profile.type}
-                            title={alerts.profile.title}
                             message={alerts.profile.message}
                         />
                     )}
@@ -201,7 +191,6 @@ const UserSettings = () => {
                     {alerts.password && (
                         <CustomAlert 
                             type={alerts.password.type}
-                            title={alerts.password.title}
                             message={alerts.password.message}
                         />
                     )}
@@ -226,7 +215,6 @@ const UserSettings = () => {
                     {alerts.delete && (
                         <CustomAlert 
                             type={alerts.delete.type}
-                            title={alerts.delete.title}
                             message={alerts.delete.message}
                         />
                     )}

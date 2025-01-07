@@ -11,12 +11,13 @@ import { Textarea } from "@/components/ui/textarea";
 import Plant from "@/interfaces/Plant";
 import { api } from "@/contexts/AuthContext";
 import { useState, useEffect } from "react";
+import { CustomAlert } from "@/components/ui/CustomAlert";
 
 interface PlantDialogProps {
     open: boolean;
     onOpenChange: (open: boolean) => void;
     plant: Plant | null;
-    onSuccess: () => void;
+    onSuccess: (plant?: Plant) => void;
 }
 
 export function PlantDialog({ open, onOpenChange, plant, onSuccess }: PlantDialogProps) {
@@ -27,6 +28,7 @@ export function PlantDialog({ open, onOpenChange, plant, onSuccess }: PlantDialo
         cultivationEnd: "",
         harvestTime: 0
     });
+    const [alert, setAlert] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
 
     useEffect(() => {
         if (plant) {
@@ -48,6 +50,11 @@ export function PlantDialog({ open, onOpenChange, plant, onSuccess }: PlantDialo
         }
     }, [plant]);
 
+    const showAlert = (type: 'success' | 'error', message: string) => {
+        setAlert({ type, message });
+        setTimeout(() => setAlert(null), 3000);
+    };
+
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         try {
@@ -56,15 +63,17 @@ export function PlantDialog({ open, onOpenChange, plant, onSuccess }: PlantDialo
             } else {
                 await api.post("/plants", formData);
             }
-            onSuccess();
+            onSuccess(plant || undefined);
+            onOpenChange(false);
         } catch (error) {
-            console.error("Errore nel salvataggio della pianta:", error);
+            showAlert('error', "Errore nel salvataggio della pianta");
         }
     };
 
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
             <DialogContent>
+                {alert && <CustomAlert type={alert.type} message={alert.message} />}
                 <DialogHeader>
                     <DialogTitle>{plant ? "Modifica Pianta" : "Aggiungi Pianta"}</DialogTitle>
                     <DialogDescription>

@@ -8,13 +8,14 @@ import { api } from "@/contexts/AuthContext";
 import type Plant from "@/interfaces/Plant";
 import type Plantation from "@/interfaces/Plantation";
 import { useAuth } from "@/contexts/AuthContext";
-import PlantationDetails from "./PlantationDetails";
+import { CustomAlert } from "@/components/ui/CustomAlert";
 
 export default function Dashboard() {
     const { user } = useAuth();
     const navigate = useNavigate();
     const [recentPlantations, setRecentPlantations] = useState<Plantation[]>([]);
     const [plants, setPlants] = useState<Plant[]>([]);
+    const [alert, setAlert] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
 
     useEffect(() => {
         if (user?.userId) {
@@ -35,9 +36,13 @@ export default function Dashboard() {
             setRecentPlantations(plantations.slice(0, 3));
             setPlants(plants.slice(0, 3));
         } catch (error) {
-            console.error("Errore nel recupero dei dati:", error);
+            setAlert({
+                type: 'error',
+                message: "Errore nel recupero dei dati della dashboard"
+            });
             setRecentPlantations([]);
             setPlants([]);
+            setTimeout(() => setAlert(null), 3000);
         }
     };
 
@@ -47,6 +52,8 @@ export default function Dashboard() {
 
     return (
         <div className="container mx-auto p-6 space-y-6">
+            {alert && <CustomAlert type={alert.type} message={alert.message} />}
+            
             {/* Sezione Meteo */}
             <div className="mb-8">
                 <Weather />
@@ -147,32 +154,6 @@ export default function Dashboard() {
                 </Card>
             </div>
 
-            {/* Azioni Principali */}
-            <div className="flex flex-wrap gap-4">
-                <Button 
-                    onClick={() => navigate("/plantations")}
-                    className="flex items-center gap-2"
-                >
-                    <Plus className="h-4 w-4" />
-                    Nuova Piantagione
-                </Button>
-                <Button 
-                    onClick={() => navigate("/plants")}
-                    variant="outline"
-                    className="flex items-center gap-2"
-                >
-                    <Plus className="h-4 w-4" />
-                    Aggiungi Pianta
-                </Button>
-                <Button 
-                    onClick={() => navigate("/activities")}
-                    variant="outline"
-                    className="flex items-center gap-2"
-                >
-                    <Plus className="h-4 w-4" />
-                    Nuova Attività
-                </Button>
-            </div>
         </div>
     );
 }

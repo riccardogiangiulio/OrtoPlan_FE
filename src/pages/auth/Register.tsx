@@ -1,4 +1,3 @@
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
@@ -9,6 +8,7 @@ import { useState } from "react";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { Link, useNavigate } from "react-router-dom";
 import { z } from "zod";
+import { CustomAlert } from "@/components/ui/CustomAlert";
 
 const STORAGE_URL = import.meta.env.VITE_API_BACKEND_URL;
 
@@ -41,8 +41,7 @@ const initialValues = {
 };
 
 const Register = () => {
-    const [success, setSuccess] = useState(false);
-    const [error, setError] = useState(false);
+    const [alert, setAlert] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
     const navigate = useNavigate();
 
     const [isPasswordVisible, setIsPasswordVisible] = useState(false);
@@ -57,10 +56,12 @@ const Register = () => {
         resolver: zodResolver(registerFormSchema),
     });
 
+    const showAlert = (type: 'success' | 'error', message: string) => {
+        setAlert({ type, message });
+        setTimeout(() => setAlert(null), 3000);
+    };
+
     const submitHandler: SubmitHandler<RegisterFormValues> = (data) => {
-        setError(false);
-        setSuccess(false);
-        
         const userData = {
             firstName: data.firstName,
             lastName: data.lastName,
@@ -71,19 +72,19 @@ const Register = () => {
         axios
             .post(`${STORAGE_URL}/users`, userData)
             .then((res) => {
-                console.log(res.data);
-                setSuccess(true);
+                showAlert('success', "Registrazione completata con successo");
                 setTimeout(() => navigate("/login"), 2000);
             })
             .catch((err) => {
-                setError(true);
-                console.log(err);
+                showAlert('error', "Si è verificato un errore durante la registrazione");
             });
     };
 
     return (
         <div className="min-h-screen bg-gradient-to-b from-green-50 to-white dark:from-gray-900 dark:to-gray-800 py-12 sm:px-6 lg:px-8">
             <div className="sm:mx-auto sm:w-full sm:max-w-md">
+                {alert && <CustomAlert type={alert.type} message={alert.message} />}
+                
                 <div className="text-center">
                     <h1 className="text-3xl font-extrabold text-gray-900 dark:text-white">
                         Crea il tuo account
@@ -209,18 +210,6 @@ const Register = () => {
                                 {isSubmitting ? "Registrazione in corso..." : "Registrati"}
                             </Button>
                         </form>
-
-                        {error && (
-                            <Alert variant="destructive" className="mt-4">
-                                <XCircle className="h-4 w-4" />
-                                <AlertTitle>
-                                    Errore durante la registrazione
-                                </AlertTitle>
-                                <AlertDescription>
-                                    Si è verificato un errore durante la registrazione
-                                </AlertDescription>
-                            </Alert>
-                        )}
 
                         <div className="mt-6">
                             <div className="relative">

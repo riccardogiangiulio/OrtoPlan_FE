@@ -1,5 +1,6 @@
 import { Outlet, useLocation } from "react-router-dom";
 import { Navbar } from "./Navbar";
+import { Footer } from "./Footer";
 
 const Layout = () => {
     const location = useLocation();
@@ -7,9 +8,12 @@ const Layout = () => {
     const shouldShowNavbar = !excludedPaths.includes(location.pathname);
 
     return (
-        <div>
+        <div className="relative min-h-screen pb-[400px]">
             {shouldShowNavbar && <Navbar />}
-            <Outlet />
+            <main>
+                <Outlet />
+            </main>
+            <Footer className="absolute bottom-0 left-0 right-0" />
         </div>
     );
 };

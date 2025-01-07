@@ -3,14 +3,13 @@ import { api } from "@/contexts/AuthContext";
 import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { Plus, Edit, Trash2, Check, X, Filter } from "lucide-react";
+import { Plus, Edit, Trash2, Check } from "lucide-react";
 import { ActivityDialog } from "@/components/ActivityDialog";
-import { CustomAlert } from "@/components/ui/custom-alert";
+import { CustomAlert } from "@/components/ui/CustomAlert";
 import type Activity from "@/interfaces/Activity";
 import type ActivityType from "@/interfaces/ActivityType";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import type Plantation from "@/interfaces/Plantation";
-import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
 
 export default function Activities() {
     const { user } = useAuth();
@@ -22,7 +21,11 @@ export default function Activities() {
     const [selectedActivity, setSelectedActivity] = useState<Activity | null>(null);
     const [filter, setFilter] = useState<'all' | 'pending' | 'completed'>('all');
     const [alert, setAlert] = useState<{ type: 'success' | 'error', message: string } | null>(null);
-    const [showNewActivityModal, setShowNewActivityModal] = useState(false);
+
+    const showAlert = (type: 'success' | 'error', message: string) => {
+        setAlert({ type, message });
+        setTimeout(() => setAlert(null), 3000);
+    };
 
     const fetchPlantations = async () => {
         if (!user) return;
@@ -33,8 +36,7 @@ export default function Activities() {
                 setSelectedPlantationId(response.data[0].plantationId.toString());
             }
         } catch (error) {
-            console.error("Errore nel recupero delle piantagioni:", error);
-            setPlantations([]);
+            showAlert('error', "Errore nel recupero delle piantagioni");
         }
     };
 
@@ -75,8 +77,9 @@ export default function Activities() {
             try {
                 await api.delete(`/activities/${activityId}`);
                 setActivities(activities.filter(a => a.activityId !== activityId));
+                showAlert('success', "Attività eliminata con successo");
             } catch (error) {
-                console.error("Errore nell'eliminazione dell'attività:", error);
+                showAlert('error', "Errore nell'eliminazione dell'attività");
             }
         }
     };
@@ -100,27 +103,16 @@ export default function Activities() {
                 }
             };
             
-            console.log("Dati inviati al server:", updatedActivity);
-            
             const response = await api.put(`/activities/${activity.activityId}`, updatedActivity);
             
             if (response.status === 200) {
                 setActivities(activities.map(a => 
                     a.activityId === activity.activityId ? response.data : a
                 ));
-
-                setAlert({
-                    type: 'success',
-                    message: `Attività ${!activity.completed ? 'completata' : 'riaperta'}`
-                });
-                setTimeout(() => setAlert(null), 3000);
+                showAlert('success', `Attività ${!activity.completed ? 'completata' : 'riaperta'}`);
             }
         } catch (error: any) {
-            console.error("Errore nell'aggiornamento dell'attività:", error);
-            setAlert({
-                type: 'error',
-                message: error.response?.data?.message || error.message || "Errore nell'aggiornamento dell'attività"
-            });
+            showAlert('error', error.response?.data?.message || "Errore nell'aggiornamento dell'attività");
         }
     };
 
@@ -161,19 +153,20 @@ export default function Activities() {
                             </SelectContent>
                         </Select>
                     </div>
-                    <Button onClick={() => setShowNewActivityModal(true)} className="w-full sm:w-auto">
+                    <Button 
+                        onClick={() => {
+                            setSelectedActivity(null);
+                            setIsDialogOpen(true);
+                        }} 
+                        className="w-full sm:w-auto"
+                    >
                         <Plus className="h-4 w-4 mr-2" />
                         Nuova Attività
                     </Button>
                 </div>
             </div>
 
-            {alert && (
-                <Alert variant={alert.type === 'success' ? 'default' : 'destructive'}>
-                    <AlertTitle>{alert.type === 'success' ? 'Successo!' : 'Errore'}</AlertTitle>
-                    <AlertDescription>{alert.message}</AlertDescription>
-                </Alert>
-            )}
+            {alert && <CustomAlert type={alert.type} message={alert.message} />}
 
             <div className="grid grid-cols-1 gap-4">
                 {filteredActivities.map((activity) => (
@@ -230,6 +223,10 @@ export default function Activities() {
                 onSuccess={() => {
                     setIsDialogOpen(false);
                     fetchActivities(selectedPlantationId);
+                    showAlert('success', selectedActivity ? 
+                        "Attività modificata con successo" : 
+                        "Attività creata con successo"
+                    );
                 }}
             />
         </div>

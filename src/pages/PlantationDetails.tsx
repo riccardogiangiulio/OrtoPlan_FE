@@ -48,21 +48,23 @@ export default function PlantationDetails() {
     const handleDelete = async () => {
         try {
             await api.delete(`/plantations/${plantationId}`);
-            navigate('/plantations', { 
-                state: { 
-                    alert: { 
-                        type: 'success', 
-                        message: 'Piantagione eliminata con successo' 
-                    } 
-                } 
+            setShowDeleteDialog(false);
+            setAlert({
+                type: 'success',
+                message: 'Piantagione eliminata con successo'
             });
+            // Aspetta che l'utente veda la notifica prima di reindirizzare
+            setTimeout(() => {
+                navigate('/plantations');
+            }, 1500);
         } catch (error: any) {
             setAlert({
                 type: 'error',
                 message: error.response?.data?.message || 'Errore durante l\'eliminazione'
             });
-            setTimeout(() => setAlert(null), 3000);
+            setShowDeleteDialog(false);
         }
+        setTimeout(() => setAlert(null), 3000);
     };
 
     const handleEditSuccess = async (updatedPlantation?: Plantation) => {
