@@ -64,6 +64,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
     const logout = () => {
         localStorage.removeItem("ACCESS_TOKEN");
+        localStorage.removeItem("weatherLocation");
         setUser(undefined);
         delete api.defaults.headers.common['Authorization'];
         navigate("/");

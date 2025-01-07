@@ -14,6 +14,12 @@ interface WeatherData {
         wind_speed_10m: number;
         weather_code: number;
     };
+    daily: {
+        time: string[];
+        temperature_2m_max: number[];
+        temperature_2m_min: number[];
+        weather_code: number[];
+    };
 }
 
 interface LocationData {
@@ -51,15 +57,28 @@ const Weather = () => {
     const [error, setError] = useState<string | null>(null);
     const [showSearch, setShowSearch] = useState(false);
 
+    // Recupera le coordinate salvate o usa quelle di default (Roma)
+    const getDefaultCoordinates = () => {
+        const savedLocation = localStorage.getItem('weatherLocation');
+        if (savedLocation) {
+            return JSON.parse(savedLocation);
+        }
+        return { lat: 41.8919, lon: 12.5113 }; // Roma
+    };
+
     const fetchLocation = async (lat: number, lon: number) => {
         try {
             const response = await axios.get(
                 `https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${lat}&longitude=${lon}&localityLanguage=it`
             );
-            setLocation({
+            const locationData = {
                 city: response.data.city || response.data.locality || 'Città sconosciuta',
                 region: response.data.principalSubdivision || response.data.countryName
-            });
+            };
+            setLocation(locationData);
+            
+            // Salva le coordinate nel localStorage
+            localStorage.setItem('weatherLocation', JSON.stringify({ lat, lon }));
         } catch (err) {
             console.error("Errore nel recupero della località:", err);
             setLocation(null);
@@ -67,51 +86,32 @@ const Weather = () => {
     };
 
     const fetchWeather = async (lat: number, lon: number) => {
-        if (!lat || !lon || isNaN(lat) || isNaN(lon)) {
-            setError("Coordinate non valide");
-            return;
-        }
-
         setLoading(true);
+        setError(null);
         try {
-            await fetchLocation(lat, lon);
-            
             const response = await axios.get(
-                `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,relative_humidity_2m,apparent_temperature,wind_speed_10m,weather_code`
+                `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,relative_humidity_2m,apparent_temperature,weather_code,wind_speed_10m&daily=weather_code,temperature_2m_max,temperature_2m_min&timezone=auto`
             );
-            
-            if (!response.data || !response.data.current) {
-                throw new Error("Dati meteo non disponibili");
-            }
-            
             setWeather(response.data);
-            setError(null);
         } catch (err) {
-            console.error("Errore nel caricamento dei dati meteo:", err);
-            setError("Errore nel caricamento dei dati meteo");
+            console.error("Errore nel recupero dei dati meteo:", err);
+            setError("Impossibile recuperare i dati meteo");
         } finally {
             setLoading(false);
         }
+    };
+
+    const handleLocationSelect = (lat: number, lon: number) => {
+        fetchWeather(lat, lon);
+        fetchLocation(lat, lon);
+        setShowSearch(false);
     };
 
     useEffect(() => {
-        // Inizializza con Roma come posizione predefinita
-        fetchWeather(41.89, 12.48);
+        const { lat, lon } = getDefaultCoordinates();
+        fetchWeather(lat, lon);
+        fetchLocation(lat, lon);
     }, []);
-
-    const handleLocationSelect = async (lat: number, lon: number) => {
-        console.log("Weather: Nuova posizione selezionata:", lat, lon); // Debug
-        try {
-            setLoading(true);
-            await fetchWeather(lat, lon);
-            setShowSearch(false);
-        } catch (error) {
-            console.error("Errore nel cambio posizione:", error);
-            setError("Errore nel cambio posizione");
-        } finally {
-            setLoading(false);
-        }
-    };
 
     const handleGetCurrentLocation = () => {
         if (navigator.geolocation) {
@@ -136,6 +136,11 @@ const Weather = () => {
         if (code >= 1 && code <= 3) return <Cloud className="h-12 w-12 text-gray-400" />;
         if (code >= 51 && code <= 67) return <CloudRain className="h-12 w-12 text-blue-400" />;
         return <Cloud className="h-12 w-12 text-gray-400" />;
+    };
+
+    const formatDate = (dateString: string) => {
+        const date = new Date(dateString);
+        return date.toLocaleDateString('it-IT', { weekday: 'short', day: 'numeric' });
     };
 
     if (loading) return (
@@ -199,62 +204,94 @@ const Weather = () => {
                 )}
             </CardHeader>
             <CardContent className="p-6">
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                    <div className="flex items-center justify-center p-8 bg-white/30 dark:bg-black/20 backdrop-blur-sm rounded-xl shadow-lg">
-                        <div className="text-center">
-                            {getWeatherIcon(weather.current.weather_code)}
-                            <div className="mt-4">
-                                <p className="text-5xl font-bold tracking-tighter">
-                                    {Math.round(weather.current.temperature_2m)}°C
-                                </p>
-                                <p className="text-lg text-muted-foreground mt-2">
-                                    {getWeatherDescription(weather.current.weather_code)}
-                                </p>
+                <div className="grid grid-cols-1 gap-6">
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                        <div className="flex items-center justify-center p-8 bg-white/30 dark:bg-black/20 backdrop-blur-sm rounded-xl shadow-lg">
+                            <div className="text-center">
+                                {getWeatherIcon(weather.current.weather_code)}
+                                <div className="mt-4">
+                                    <p className="text-5xl font-bold tracking-tighter">
+                                        {Math.round(weather.current.temperature_2m)}°C
+                                    </p>
+                                    <p className="text-lg text-muted-foreground mt-2">
+                                        {getWeatherDescription(weather.current.weather_code)}
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+    
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div className={cn(
+                                "p-6 rounded-xl bg-white/30 dark:bg-black/20 backdrop-blur-sm shadow-lg",
+                                "hover:bg-white/40 dark:hover:bg-black/30 transition-colors"
+                            )}>
+                                <div className="flex items-center gap-4">
+                                    <Thermometer className="h-8 w-8 text-orange-500" />
+                                    <div>
+                                        <p className="text-sm font-medium text-muted-foreground">Percepita</p>
+                                        <p className="text-2xl font-bold">{Math.round(weather.current.apparent_temperature)}°C</p>
+                                    </div>
+                                </div>
+                            </div>
+    
+                            <div className={cn(
+                                "p-6 rounded-xl bg-white/30 dark:bg-black/20 backdrop-blur-sm shadow-lg",
+                                "hover:bg-white/40 dark:hover:bg-black/30 transition-colors"
+                            )}>
+                                <div className="flex items-center gap-4">
+                                    <Droplets className="h-8 w-8 text-blue-500" />
+                                    <div>
+                                        <p className="text-sm font-medium text-muted-foreground">Umidità</p>
+                                        <p className="text-2xl font-bold">{weather.current.relative_humidity_2m}%</p>
+                                    </div>
+                                </div>
+                            </div>
+    
+                            <div className={cn(
+                                "p-6 rounded-xl bg-white/30 dark:bg-black/20 backdrop-blur-sm shadow-lg",
+                                "hover:bg-white/40 dark:hover:bg-black/30 transition-colors",
+                                "col-span-1 sm:col-span-2"
+                            )}>
+                                <div className="flex items-center gap-4">
+                                    <Wind className="h-8 w-8 text-gray-500" />
+                                    <div>
+                                        <p className="text-sm font-medium text-muted-foreground">Vento</p>
+                                        <p className="text-2xl font-bold">{Math.round(weather.current.wind_speed_10m)} km/h</p>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
-    
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                        <div className={cn(
-                            "p-6 rounded-xl bg-white/30 dark:bg-black/20 backdrop-blur-sm shadow-lg",
-                            "hover:bg-white/40 dark:hover:bg-black/30 transition-colors"
-                        )}>
-                            <div className="flex items-center gap-4">
-                                <Thermometer className="h-8 w-8 text-orange-500" />
-                                <div>
-                                    <p className="text-sm font-medium text-muted-foreground">Percepita</p>
-                                    <p className="text-2xl font-bold">{Math.round(weather.current.apparent_temperature)}°C</p>
-                                </div>
+
+                    {weather?.daily && (
+                        <div className="mt-6">
+                            <h3 className="text-lg font-semibold mb-4">Previsioni per i prossimi giorni</h3>
+                            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+                                {weather.daily.time.slice(1, 6).map((date, index) => (
+                                    <div 
+                                        key={date}
+                                        className="bg-white/30 dark:bg-black/20 backdrop-blur-sm rounded-lg p-4 text-center shadow-lg hover:bg-white/40 dark:hover:bg-black/30 transition-colors"
+                                    >
+                                        <p className="font-medium">{formatDate(date)}</p>
+                                        <div className="my-2">
+                                            {getWeatherIcon(weather.daily.weather_code[index + 1])}
+                                        </div>
+                                        <div className="flex justify-center gap-2 text-sm">
+                                            <span className="text-red-500">
+                                                {Math.round(weather.daily.temperature_2m_max[index + 1])}°
+                                            </span>
+                                            <span className="text-blue-500">
+                                                {Math.round(weather.daily.temperature_2m_min[index + 1])}°
+                                            </span>
+                                        </div>
+                                        <p className="text-xs mt-1 text-gray-600 dark:text-gray-400">
+                                            {getWeatherDescription(weather.daily.weather_code[index + 1])}
+                                        </p>
+                                    </div>
+                                ))}
                             </div>
                         </div>
-    
-                        <div className={cn(
-                            "p-6 rounded-xl bg-white/30 dark:bg-black/20 backdrop-blur-sm shadow-lg",
-                            "hover:bg-white/40 dark:hover:bg-black/30 transition-colors"
-                        )}>
-                            <div className="flex items-center gap-4">
-                                <Droplets className="h-8 w-8 text-blue-500" />
-                                <div>
-                                    <p className="text-sm font-medium text-muted-foreground">Umidità</p>
-                                    <p className="text-2xl font-bold">{weather.current.relative_humidity_2m}%</p>
-                                </div>
-                            </div>
-                        </div>
-    
-                        <div className={cn(
-                            "p-6 rounded-xl bg-white/30 dark:bg-black/20 backdrop-blur-sm shadow-lg",
-                            "hover:bg-white/40 dark:hover:bg-black/30 transition-colors",
-                            "col-span-1 sm:col-span-2"
-                        )}>
-                            <div className="flex items-center gap-4">
-                                <Wind className="h-8 w-8 text-gray-500" />
-                                <div>
-                                    <p className="text-sm font-medium text-muted-foreground">Vento</p>
-                                    <p className="text-2xl font-bold">{Math.round(weather.current.wind_speed_10m)} km/h</p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+                    )}
                 </div>
             </CardContent>
         </Card>
