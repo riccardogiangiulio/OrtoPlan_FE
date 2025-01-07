@@ -4,7 +4,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import type Plantation  from "@/interfaces/Plantation";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Sprout, Edit, Trash2, MapPin } from "lucide-react";
+import { Sprout, Edit, Trash2, MapPin, Plus } from "lucide-react";
 import { PlantationDialog } from "@/components/PlantationDialog";
 import Plant from "@/interfaces/Plant";
 
@@ -66,12 +66,17 @@ export default function Plantations() {
         return new Date(dateString).toLocaleDateString('it-IT');
     };
 
+    const handleAdd = () => {
+        setSelectedPlantation(null);
+        setIsDialogOpen(true);
+    };
+
     return (
         <div className="container mx-auto p-6">
             <div className="flex justify-between items-center mb-6">
                 <h1 className="text-2xl font-bold">Le Mie Piantagioni</h1>
-                <Button onClick={() => setIsDialogOpen(true)}>
-                    <Sprout className="mr-2 h-4 w-4" />
+                <Button onClick={handleAdd}>
+                    <Plus className="mr-2 h-4 w-4" />
                     Nuova Piantagione
                 </Button>
             </div>
