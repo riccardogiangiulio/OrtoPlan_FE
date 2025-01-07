@@ -56,10 +56,10 @@ npm install
 3. **Configura le variabili d'ambiente**
 Crea un file `.env` nella cartella frontend:
 ```env
-VITE_API_URL=http://localhost:7070/api
+VITE_API_URL=http://localhost:7070
 ```
 
-4. **Avvia l'applicazione in modalità sviluppo**
+4. **Avvia l'applicazione**
 ```bash
 npm run dev
 ```
