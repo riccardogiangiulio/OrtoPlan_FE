@@ -114,8 +114,8 @@ const Weather = () => {
                     fetchLocation(position.coords.latitude, position.coords.longitude);
                     showAlert('success', "Posizione aggiornata con successo");
                 },
-                (error) => {
-                    showAlert('error', "Impossibile ottenere la posizione attuale");
+                (error: GeolocationPositionError) => {
+                    showAlert('error', `Impossibile ottenere la posizione attuale: ${error.message}`);
                     setLoading(false);
                 }
             );

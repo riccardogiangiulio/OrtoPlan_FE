@@ -7,7 +7,7 @@ import { CustomAlert } from "@/components/ui/CustomAlert";
 import { useState, useEffect } from "react";
 
 const UserSettings = () => {
-    const { user } = useAuth();
+    const { user, updateUser } = useAuth();
     const { handleUserEdit, handlePasswordUpdate, handleUserDelete } = useStoreContext();
     
     const [formData, setFormData] = useState({
@@ -49,11 +49,15 @@ const UserSettings = () => {
         }, 3000);
     };
 
-    const handleSubmit = (e: React.FormEvent) => {
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         if (user?.userId) {
             try {
-                handleUserEdit(user.userId, formData);
+                await handleUserEdit(user.userId, formData);
+                updateUser({
+                    ...user,
+                    ...formData
+                });
                 showAlert(
                     "profile",
                     "success",

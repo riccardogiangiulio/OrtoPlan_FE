@@ -1,7 +1,6 @@
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { useNavigate, Link } from "react-router-dom";
-import { Sprout, MapPin, Plus, Calendar, List } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { Sprout, MapPin, Calendar, List } from "lucide-react";
 import Weather from "@/components/Weather";
 import { useState, useEffect } from "react";
 import { api } from "@/contexts/AuthContext";
@@ -9,12 +8,16 @@ import type Plant from "@/interfaces/Plant";
 import type Plantation from "@/interfaces/Plantation";
 import { useAuth } from "@/contexts/AuthContext";
 import { CustomAlert } from "@/components/ui/CustomAlert";
+import type Activity from "@/interfaces/Activity";
+import type ActivityType from "@/interfaces/ActivityType";
 
 export default function Dashboard() {
     const { user } = useAuth();
     const navigate = useNavigate();
     const [recentPlantations, setRecentPlantations] = useState<Plantation[]>([]);
     const [plants, setPlants] = useState<Plant[]>([]);
+    const [activities, setActivities] = useState<Activity[]>([]);
+    const [activityTypes, setActivityTypes] = useState<ActivityType[]>([]);
     const [alert, setAlert] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
 
     useEffect(() => {
@@ -23,25 +26,31 @@ export default function Dashboard() {
         }
     }, [user]);
 
+    
+
     const fetchData = async () => {
         try {
-            const [plantationsRes, plantsRes] = await Promise.all([
-                api.get(`/plantations/user/${user?.userId}`),
-                api.get("/plants")
-            ]);
+            // Prima ottieni le piantagioni
+            const plantationsRes = await api.get(`/plantations/user/${user?.userId}`);
+            setRecentPlantations(plantationsRes.data.slice(0, 3));
 
-            const plantations = plantationsRes.data || [];
-            const plants = plantsRes.data || [];
+            // Se ci sono piantagioni, ottieni le attività pendenti della prima piantagione
+            if (plantationsRes.data.length > 0) {
+                const [plantsRes, activitiesRes, activityTypesRes] = await Promise.all([
+                    api.get("/plants"),
+                    api.get(`/activities/plantation/${plantationsRes.data[0].plantationId}/pending`),
+                    api.get("/activityTypes")
+                ]);
 
-            setRecentPlantations(plantations.slice(0, 3));
-            setPlants(plants.slice(0, 3));
+                setPlants(plantsRes.data.slice(0, 3));
+                setActivities(activitiesRes.data.slice(0, 3));
+                setActivityTypes(activityTypesRes.data);
+            }
         } catch (error) {
             setAlert({
                 type: 'error',
                 message: "Errore nel recupero dei dati della dashboard"
             });
-            setRecentPlantations([]);
-            setPlants([]);
             setTimeout(() => setAlert(null), 3000);
         }
     };
@@ -134,7 +143,23 @@ export default function Dashboard() {
                         </CardDescription>
                     </CardHeader>
                     <CardContent>
-                        <p className="text-sm text-gray-500">Pianifica e monitora le tue attività</p>
+                        {activities.length > 0 ? (
+                            <div className="space-y-2">
+                                {activities.map(activity => (
+                                    <div 
+                                        key={activity.activityId} 
+                                        className="flex justify-between items-center p-2 bg-gray-50 rounded"
+                                    >
+                                        <span>{activity.description}</span>
+                                        <span className="text-sm text-gray-500">
+                                            {formatDate(activity.scheduled_dt)}
+                                        </span>
+                                    </div>
+                                ))}
+                            </div>
+                        ) : (
+                            <p className="text-sm text-gray-500">Nessuna attività programmata</p>
+                        )}
                     </CardContent>
                 </Card>
 
@@ -149,7 +174,20 @@ export default function Dashboard() {
                         </CardDescription>
                     </CardHeader>
                     <CardContent>
-                        <p className="text-sm text-gray-500">Personalizza i tipi di attività del tuo orto</p>
+                        {activityTypes.length > 0 ? (
+                            <div className="space-y-2">
+                                {activityTypes.map(type => (
+                                    <div 
+                                        key={type.activityTypeId} 
+                                        className="flex justify-between items-center p-2 bg-gray-50 rounded"
+                                    >
+                                        <span>{type.name}</span>
+                                    </div>
+                                ))}
+                            </div>
+                        ) : (
+                            <p className="text-sm text-gray-500">Nessun tipo di attività disponibile</p>
+                        )}
                     </CardContent>
                 </Card>
             </div>

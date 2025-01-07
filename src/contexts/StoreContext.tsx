@@ -55,8 +55,6 @@ const initialState: IStoreContextState = {
     users: [],
 };
 
-const STORAGE_URL = import.meta.env.VITE_API_BACKEND_URL;
-
 export const StoreProvider = ({ children }: { children: ReactNode }) => {
     const [state, dispatch] = useReducer(storeReducer, initialState);
 

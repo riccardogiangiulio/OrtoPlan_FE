@@ -1,9 +1,8 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { cn } from "@/lib/utils";
 import { zodResolver } from "@hookform/resolvers/zod";
 import axios from "axios";
-import { CheckCircle, Eye, EyeOff, XCircle } from "lucide-react";
+import { Eye, EyeOff } from "lucide-react";
 import { useState } from "react";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { Link, useNavigate } from "react-router-dom";
@@ -71,11 +70,11 @@ const Register = () => {
 
         axios
             .post(`${STORAGE_URL}/users`, userData)
-            .then((res) => {
+            .then(() => {
                 showAlert('success', "Registrazione completata con successo");
                 setTimeout(() => navigate("/login"), 2000);
             })
-            .catch((err) => {
+            .catch(() => {
                 showAlert('error', "Si è verificato un errore durante la registrazione");
             });
     };

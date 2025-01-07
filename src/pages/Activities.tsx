@@ -133,26 +133,40 @@ export default function Activities() {
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
                 <h1 className="text-2xl font-bold">Attività</h1>
                 <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
-                    <div className="w-full sm:w-[200px]">
-                        <Select
-                            value={selectedPlantationId || ""}
-                            onValueChange={handlePlantationChange}
-                        >
-                            <SelectTrigger className="w-full">
-                                <SelectValue placeholder="Seleziona piantagione" />
-                            </SelectTrigger>
-                            <SelectContent>
-                                {plantations.map((plantation) => (
-                                    <SelectItem 
-                                        key={plantation.plantationId} 
-                                        value={plantation.plantationId.toString()}
-                                    >
-                                        {plantation.name}
-                                    </SelectItem>
-                                ))}
-                            </SelectContent>
-                        </Select>
-                    </div>
+                    <Select
+                        value={filter}
+                        onValueChange={(value: 'all' | 'pending' | 'completed') => setFilter(value)}
+                    >
+                        <SelectTrigger className="w-[150px]">
+                            <SelectValue placeholder="Filtra attività" />
+                        </SelectTrigger>
+                        <SelectContent>
+                            <SelectItem value="all">Tutte</SelectItem>
+                            <SelectItem value="pending">In sospeso</SelectItem>
+                            <SelectItem value="completed">Completate</SelectItem>
+                        </SelectContent>
+                    </Select>
+
+                    <Select
+                        value={selectedPlantationId || ""}
+                        onValueChange={handlePlantationChange}
+                    >
+                        <SelectTrigger className="w-[200px] truncate">
+                            <SelectValue placeholder="Seleziona piantagione" />
+                        </SelectTrigger>
+                        <SelectContent className="max-w-[300px]">
+                            {plantations.map((plantation) => (
+                                <SelectItem 
+                                    key={plantation.plantationId} 
+                                    value={plantation.plantationId.toString()}
+                                    className="truncate"
+                                >
+                                    {plantation.name}
+                                </SelectItem>
+                            ))}
+                        </SelectContent>
+                    </Select>
+
                     <Button 
                         onClick={() => {
                             setSelectedActivity(null);

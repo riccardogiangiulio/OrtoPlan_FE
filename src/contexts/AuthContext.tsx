@@ -14,7 +14,9 @@ export const api = axios.create({
 });
 
 interface IAuthContextProps {
-    user?: IUser;
+    user: IUser | null;
+    setUser: (user: IUser | null) => void;
+    updateUser: (user: IUser) => void;
     setAsLogged: (token: string) => void;
     logout: () => void;
 }
@@ -30,7 +32,7 @@ export const useAuth = () => {
 };
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
-    const [user, setUser] = useState<IUser>();
+    const [user, setUser] = useState<IUser | null>(null);
     const navigate = useNavigate();
 
     const getUser = (token: string) => {
@@ -68,9 +70,15 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     const logout = () => {
         localStorage.removeItem("ACCESS_TOKEN");
         localStorage.removeItem("weatherLocation");
-        setUser(undefined);
+        localStorage.removeItem("user");
+        setUser(null);
         delete api.defaults.headers.common['Authorization'];
         navigate("/");
+    };
+
+    const updateUser = (updatedUser: IUser) => {
+        setUser(updatedUser);
+        localStorage.setItem('user', JSON.stringify(updatedUser));
     };
 
     useEffect(() => {
@@ -81,7 +89,13 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }, []);
 
     return (
-        <AuthContext.Provider value={{ user, setAsLogged, logout }}>
+        <AuthContext.Provider value={{ 
+            user, 
+            setUser, 
+            updateUser, 
+            setAsLogged, 
+            logout 
+        }}>
             {children}
         </AuthContext.Provider>
     );
