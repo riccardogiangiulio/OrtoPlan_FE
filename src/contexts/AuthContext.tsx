@@ -66,7 +66,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         localStorage.removeItem("ACCESS_TOKEN");
         setUser(undefined);
         delete api.defaults.headers.common['Authorization'];
-        navigate("/login");
+        navigate("/");
     };
 
     useEffect(() => {

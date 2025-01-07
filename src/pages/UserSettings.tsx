@@ -1,4 +1,4 @@
-import { useAuth } from "@/contexts/AuthContext";
+import { api, useAuth } from "@/contexts/AuthContext";
 import { useStoreContext } from "@/contexts/StoreContext";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -19,7 +19,10 @@ const UserSettings = () => {
         email: ""
     });
     
-    const [newPassword, setNewPassword] = useState("");
+    const [passwordForm, setPasswordForm] = useState({
+        currentPassword: "",
+        newPassword: "",
+    });
     const [alerts, setAlerts] = useState<{
         profile?: { type: "success" | "error"; title: string; message: string };
         password?: { type: "success" | "error"; title: string; message: string };
@@ -73,24 +76,26 @@ const UserSettings = () => {
 
     const handlePasswordChange = (e: React.FormEvent) => {
         e.preventDefault();
-        if (user?.userId && newPassword) {
-            try {
-                handlePasswordUpdate(user.userId, newPassword);
-                showAlert(
-                    "password",
-                    "success",
-                    "Password aggiornata",
-                    "La password è stata aggiornata con successo"
-                );
-                setNewPassword("");
-            } catch (error) {
-                showAlert(
-                    "password",
-                    "error",
-                    "Errore",
-                    "Si è verificato un errore durante l'aggiornamento della password"
-                );
-            }
+        if (user?.userId && passwordForm.currentPassword && passwordForm.newPassword) {
+            api.put(`/users/password/${user.userId}`, `password=${passwordForm.currentPassword}`)
+                .then(() => {
+                    handlePasswordUpdate(user.userId, passwordForm.newPassword);
+                    showAlert(
+                        "password",
+                        "success",
+                        "Password aggiornata",
+                        "La password è stata aggiornata con successo"
+                    );
+                    setPasswordForm({ currentPassword: "", newPassword: "" });
+                })
+                .catch(() => {
+                    showAlert(
+                        "password",
+                        "error",
+                        "Password errata",
+                        "La password attuale non è corretta"
+                    );
+                });
         }
     };
 
@@ -164,14 +169,34 @@ const UserSettings = () => {
                 <CardContent>
                     <form onSubmit={handlePasswordChange} className="space-y-4">
                         <div className="space-y-2">
+                            <label className="text-sm font-medium">Password Attuale</label>
+                            <Input
+                                type="password"
+                                value={passwordForm.currentPassword}
+                                onChange={(e) => setPasswordForm({
+                                    ...passwordForm,
+                                    currentPassword: e.target.value
+                                })}
+                            />
+                        </div>
+                        <div className="space-y-2">
                             <label className="text-sm font-medium">Nuova Password</label>
                             <Input
                                 type="password"
-                                value={newPassword}
-                                onChange={(e) => setNewPassword(e.target.value)}
+                                value={passwordForm.newPassword}
+                                onChange={(e) => setPasswordForm({
+                                    ...passwordForm,
+                                    newPassword: e.target.value
+                                })}
                             />
                         </div>
-                        <Button type="submit" className="w-fit">Aggiorna Password</Button>
+                        <Button 
+                            type="submit" 
+                            className="w-fit"
+                            disabled={!passwordForm.currentPassword || !passwordForm.newPassword}
+                        >
+                            Aggiorna Password
+                        </Button>
                     </form>
                     {alerts.password && (
                         <CustomAlert 

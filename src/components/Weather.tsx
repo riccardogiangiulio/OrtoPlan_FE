@@ -157,13 +157,13 @@ const Weather = () => {
     if (!weather) return null;
 
     return (
-        <Card className="overflow-hidden">
-            <CardHeader className="bg-gradient-to-r from-blue-50 to-blue-100 dark:from-blue-900/20 dark:to-blue-800/20">
+        <Card className="overflow-hidden bg-gradient-to-br from-blue-50/50 to-indigo-50/50 dark:from-gray-900/50 dark:to-indigo-900/50">
+            <CardHeader className="bg-gradient-to-r from-blue-100/80 to-indigo-100/80 dark:from-blue-900/20 dark:to-indigo-800/20 backdrop-blur-sm">
                 <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
                     <CardTitle className="text-2xl font-bold">Meteo Attuale</CardTitle>
                     <div className="flex flex-wrap items-center gap-2 w-full sm:w-auto">
                         {location && (
-                            <div className="flex items-center gap-2 text-muted-foreground bg-white/80 dark:bg-black/20 px-3 py-1 rounded-full">
+                            <div className="flex items-center gap-2 text-muted-foreground bg-white/40 dark:bg-black/20 backdrop-blur-sm px-3 py-1 rounded-full">
                                 <MapPin className="h-4 w-4" />
                                 <span className="text-sm font-medium">
                                     {location.city}, {location.region}
@@ -175,7 +175,7 @@ const Weather = () => {
                                 variant="outline" 
                                 size="sm"
                                 onClick={handleGetCurrentLocation}
-                                className="bg-white/80 dark:bg-black/20"
+                                className="bg-white/40 dark:bg-black/20 backdrop-blur-sm hover:bg-white/60 dark:hover:bg-black/30"
                             >
                                 <Navigation className="h-4 w-4 mr-2" />
                                 <span className="hidden sm:inline">Posizione Attuale</span>
@@ -185,7 +185,7 @@ const Weather = () => {
                                 variant="outline" 
                                 size="sm"
                                 onClick={() => setShowSearch(!showSearch)}
-                                className="bg-white/80 dark:bg-black/20"
+                                className="bg-white/40 dark:bg-black/20 backdrop-blur-sm hover:bg-white/60 dark:hover:bg-black/30"
                             >
                                 Cambia località
                             </Button>
@@ -200,26 +200,26 @@ const Weather = () => {
             </CardHeader>
             <CardContent className="p-6">
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                    <div className="flex items-center justify-center p-6 bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-900/20 dark:to-blue-800/20 rounded-xl">
+                    <div className="flex items-center justify-center p-8 bg-white/30 dark:bg-black/20 backdrop-blur-sm rounded-xl shadow-lg">
                         <div className="text-center">
                             {getWeatherIcon(weather.current.weather_code)}
-                            <div className="mt-2">
-                                <p className="text-4xl font-bold">
+                            <div className="mt-4">
+                                <p className="text-5xl font-bold tracking-tighter">
                                     {Math.round(weather.current.temperature_2m)}°C
                                 </p>
-                                <p className="text-lg text-muted-foreground">
+                                <p className="text-lg text-muted-foreground mt-2">
                                     {getWeatherDescription(weather.current.weather_code)}
                                 </p>
                             </div>
                         </div>
                     </div>
-
+    
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div className={cn(
-                            "p-4 rounded-xl bg-gradient-to-br",
-                            "from-orange-50 to-orange-100 dark:from-orange-900/20 dark:to-orange-800/20"
+                            "p-6 rounded-xl bg-white/30 dark:bg-black/20 backdrop-blur-sm shadow-lg",
+                            "hover:bg-white/40 dark:hover:bg-black/30 transition-colors"
                         )}>
-                            <div className="flex items-center gap-3">
+                            <div className="flex items-center gap-4">
                                 <Thermometer className="h-8 w-8 text-orange-500" />
                                 <div>
                                     <p className="text-sm font-medium text-muted-foreground">Percepita</p>
@@ -227,12 +227,12 @@ const Weather = () => {
                                 </div>
                             </div>
                         </div>
-
+    
                         <div className={cn(
-                            "p-4 rounded-xl bg-gradient-to-br",
-                            "from-blue-50 to-blue-100 dark:from-blue-900/20 dark:to-blue-800/20"
+                            "p-6 rounded-xl bg-white/30 dark:bg-black/20 backdrop-blur-sm shadow-lg",
+                            "hover:bg-white/40 dark:hover:bg-black/30 transition-colors"
                         )}>
-                            <div className="flex items-center gap-3">
+                            <div className="flex items-center gap-4">
                                 <Droplets className="h-8 w-8 text-blue-500" />
                                 <div>
                                     <p className="text-sm font-medium text-muted-foreground">Umidità</p>
@@ -240,13 +240,13 @@ const Weather = () => {
                                 </div>
                             </div>
                         </div>
-
+    
                         <div className={cn(
-                            "p-4 rounded-xl bg-gradient-to-br",
-                            "from-gray-50 to-gray-100 dark:from-gray-900/20 dark:to-gray-800/20",
+                            "p-6 rounded-xl bg-white/30 dark:bg-black/20 backdrop-blur-sm shadow-lg",
+                            "hover:bg-white/40 dark:hover:bg-black/30 transition-colors",
                             "col-span-1 sm:col-span-2"
                         )}>
-                            <div className="flex items-center gap-3">
+                            <div className="flex items-center gap-4">
                                 <Wind className="h-8 w-8 text-gray-500" />
                                 <div>
                                     <p className="text-sm font-medium text-muted-foreground">Vento</p>
