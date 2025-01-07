@@ -10,6 +10,7 @@ import Plantations from "./pages/Plantations";
 import Activities from "./pages/Activities";
 import ActivityTypes from "./pages/ActivityTypes";
 import PlantationDetails from "./pages/PlantationDetails";
+import Notifications from "@/pages/Notifications";
 
 import { AuthProvider } from "@/contexts/AuthContext";
 import { StoreProvider } from "@/contexts/StoreContext";
@@ -31,6 +32,7 @@ function App() {
                         <Route path="/plantations/:plantationId" element={<PlantationDetails />} />
                         <Route path="activities" element={<Activities />} />
                         <Route path="activity-types" element={<ActivityTypes />} />
+                        <Route path="/notifications" element={<Notifications />} />
                     </Route>
 
                 </Routes>

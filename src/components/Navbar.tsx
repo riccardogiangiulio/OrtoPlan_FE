@@ -10,6 +10,7 @@ import {
     DropdownMenuSeparator,
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { NotificationCenter } from './NotificationCenter';
 
 export const Navbar = () => {
     const { user, logout } = useAuth();
@@ -59,41 +60,44 @@ export const Navbar = () => {
                     {/* User Menu (Desktop) */}
                     <div className="hidden md:flex items-center gap-4">
                         {user && (
-                            <DropdownMenu>
-                                <DropdownMenuTrigger asChild>
-                                    <Button 
-                                        variant="outline" 
-                                        className="flex items-center gap-2 px-3 py-2 h-auto"
-                                    >
-                                        <div className="h-8 w-8 rounded-full bg-green-100 dark:bg-green-900 flex items-center justify-center">
-                                            <span className="font-medium text-green-700 dark:text-green-300">
-                                                {user.firstName?.charAt(0)}
-                                                {user.lastName?.charAt(0)}
+                            <>
+                                <NotificationCenter userId={user.userId} />
+                                <DropdownMenu>
+                                    <DropdownMenuTrigger asChild>
+                                        <Button 
+                                            variant="outline" 
+                                            className="flex items-center gap-2 px-3 py-2 h-auto"
+                                        >
+                                            <div className="h-8 w-8 rounded-full bg-green-100 dark:bg-green-900 flex items-center justify-center">
+                                                <span className="font-medium text-green-700 dark:text-green-300">
+                                                    {user.firstName?.charAt(0)}
+                                                    {user.lastName?.charAt(0)}
+                                                </span>
+                                            </div>
+                                            <span className="text-sm font-medium">
+                                                {user.firstName} {user.lastName}
                                             </span>
+                                        </Button>
+                                    </DropdownMenuTrigger>
+                                    <DropdownMenuContent align="end" className="w-56">
+                                        <div className="flex items-center justify-start gap-2 p-2">
+                                            <div className="flex flex-col space-y-1">
+                                                <p className="text-sm font-medium">{user.firstName} {user.lastName}</p>
+                                                <p className="text-xs text-muted-foreground">{user.email}</p>
+                                            </div>
                                         </div>
-                                        <span className="text-sm font-medium">
-                                            {user.firstName} {user.lastName}
-                                        </span>
-                                    </Button>
-                                </DropdownMenuTrigger>
-                                <DropdownMenuContent align="end" className="w-56">
-                                    <div className="flex items-center justify-start gap-2 p-2">
-                                        <div className="flex flex-col space-y-1">
-                                            <p className="text-sm font-medium">{user.firstName} {user.lastName}</p>
-                                            <p className="text-xs text-muted-foreground">{user.email}</p>
-                                        </div>
-                                    </div>
-                                    <DropdownMenuSeparator />
-                                    <DropdownMenuItem onClick={() => navigate("/settings")}>
-                                        <Settings className="mr-2 h-4 w-4" />
-                                        <span>Impostazioni</span>
-                                    </DropdownMenuItem>
-                                    <DropdownMenuItem onClick={handleLogout}>
-                                        <LogOut className="mr-2 h-4 w-4" />
-                                        <span>Logout</span>
-                                    </DropdownMenuItem>
-                                </DropdownMenuContent>
-                            </DropdownMenu>
+                                        <DropdownMenuSeparator />
+                                        <DropdownMenuItem onClick={() => navigate("/settings")}>
+                                            <Settings className="mr-2 h-4 w-4" />
+                                            <span>Impostazioni</span>
+                                        </DropdownMenuItem>
+                                        <DropdownMenuItem onClick={handleLogout}>
+                                            <LogOut className="mr-2 h-4 w-4" />
+                                            <span>Logout</span>
+                                        </DropdownMenuItem>
+                                    </DropdownMenuContent>
+                                </DropdownMenu>
+                            </>
                         )}
                     </div>
 
